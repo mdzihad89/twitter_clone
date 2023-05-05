@@ -88,8 +88,16 @@ class AuthController extends StateNotifier<bool> {
     res.fold((l) {
       showSnackBar(context, l.msg);
     }, (r) {
-      showSnackBar(context, r.userId);
       context.pushReplacement(const HomeView());
+    });
+  }
+
+  void logOut(BuildContext context) async {
+    final res = await _authAPI.logOut();
+    res.fold((l) {
+      return null;
+    }, (r) {
+      context.pushAndRemoveUntil(const LoginView());
     });
   }
 

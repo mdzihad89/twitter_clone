@@ -10,6 +10,7 @@ final authAPIProvider = Provider((ref) {
   final account = ref.watch(appwriteAccountProvider);
   return AuthAPI(account: account);
 });
+
 abstract class IAuthAPI {
   FutureEither<model.User> signUp({
     required String name,
@@ -17,12 +18,14 @@ abstract class IAuthAPI {
     required String pass,
   });
 
-
   FutureEither<model.Session> login({
     required String email,
     required String pass,
   });
+
   FutureEither<model.Token?> verifyEmail();
+
+  FutureEitherVoid logOut();
 
   Future<model.User?> currentUserAccount();
 }
@@ -57,10 +60,11 @@ class AuthAPI implements IAuthAPI {
     }
   }
 
-
   @override
-  FutureEither<model.Session> login(
-      {required String email, required String pass,}) async {
+  FutureEither<model.Session> login({
+    required String email,
+    required String pass,
+  }) async {
     try {
       final account = await _account.createEmailSession(
         email: email,
@@ -82,7 +86,7 @@ class AuthAPI implements IAuthAPI {
   Future<model.User?> currentUserAccount() async {
     try {
       return await _account.get();
-    } on AppwriteException  {
+    } on AppwriteException {
       return null;
     } catch (e) {
       return null;
@@ -93,9 +97,24 @@ class AuthAPI implements IAuthAPI {
   FutureEither<model.Token?> verifyEmail() async {
     try {
       final account = await _account.createVerification(
-          url: "http://192.168.0.104/v1/complete_verify.html"
-      );
+          url: "http://192.168.0.104/v1/complete_verify.html");
       return right(account);
+    } on AppwriteException catch (e, stackTrace) {
+      return left(
+        Failure(e.message ?? 'Some unexpected error occurred', stackTrace),
+      );
+    } catch (e, stackTrace) {
+      return left(
+        Failure(e.toString(), stackTrace),
+      );
+    }
+  }
+
+  @override
+  FutureEitherVoid logOut() async {
+    try {
+      await _account.deleteSessions();
+      return right(null);
     } on AppwriteException catch (e, stackTrace) {
       return left(
         Failure(e.message ?? 'Some unexpected error occurred', stackTrace),

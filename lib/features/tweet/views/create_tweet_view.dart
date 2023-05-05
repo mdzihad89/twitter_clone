@@ -1,6 +1,7 @@
 
 import 'dart:io';
 
+import 'package:carousel_indicator/carousel_indicator.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,7 @@ class CreateTweetScreen extends ConsumerStatefulWidget {
 class _CreateTweetScreenState extends ConsumerState<CreateTweetScreen> {
   final tweetTextController = TextEditingController();
   List<File> images = [];
+  int pageIndex=0;
 
 
 
@@ -39,6 +41,7 @@ class _CreateTweetScreenState extends ConsumerState<CreateTweetScreen> {
       text: tweetTextController.text,
       context: context,
     );
+    Navigator.pop(context);
   }
 
   @override
@@ -96,23 +99,41 @@ class _CreateTweetScreenState extends ConsumerState<CreateTweetScreen> {
                 ],
               ),
               if (images.isNotEmpty)
-                CarouselSlider(
-                  items: images.map(
-                        (file) {
+                Column(
+                  children: [
+                    CarouselSlider(
+                      items: images.map(
+                            (file) {
 
-                      return Container(
-                        width: MediaQuery.of(context).size.width,
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                        ),
-                        child: Image.file(file),
-                      );
-                    },
-                  ).toList(),
-                  options: CarouselOptions(
-                    height: 400,
-                    enableInfiniteScroll: false,
-                  ),
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                            ),
+                            child: Image.file(file),
+                          );
+                        },
+                      ).toList(),
+                      options: CarouselOptions(
+                        viewportFraction: 1,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            pageIndex=index;
+                          });
+                        },
+                        enableInfiniteScroll: false,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+
+                    CarouselIndicator(
+                      width: 10,
+                      height: 10,
+                      cornerRadius: 17,
+                      count: images.length,
+                      index: pageIndex,
+                    ),
+                  ],
                 ),
             ],
           ),

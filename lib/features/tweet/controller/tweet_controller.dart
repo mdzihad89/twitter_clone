@@ -24,6 +24,10 @@ final getTweetsProvider = FutureProvider((ref) {
   return tweetController.getTweets();
 });
 
+final getLatestTweetProvider = StreamProvider((ref){
+  final tweetAPI=ref.watch(tweetAPIProvider);
+  return tweetAPI.getLatestTweet();
+});
 
 class TweetController extends StateNotifier<bool> {
   final Ref _ref;
@@ -95,8 +99,7 @@ class TweetController extends StateNotifier<bool> {
     state = false;
     res.fold((l) => showSnackBar(context, l.msg),
             (r) {
-          showSnackBar(context, r.$id);
-          Navigator.pop(context);
+
         });
   }
 
@@ -125,9 +128,8 @@ class TweetController extends StateNotifier<bool> {
     state = false;
     res.fold((l) => showSnackBar(context, l.msg),
         (r) {
-          showSnackBar(context, r.$id);
-          Navigator.pop(context);
         });
+    state=false;
   }
 
   String _getLinkFromText(String text) {
@@ -150,5 +152,9 @@ class TweetController extends StateNotifier<bool> {
       }
     }
     return hashtags;
+  }
+
+  void likeTweet(){
+
   }
 }
